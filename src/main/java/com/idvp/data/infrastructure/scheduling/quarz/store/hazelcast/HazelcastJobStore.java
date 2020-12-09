@@ -15,16 +15,17 @@
 
 package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast;
 
-import com.hazelcast.core.*;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.TimeTriggerSet;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.core.HazelcastException;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.LifecycleEvent;
+import com.hazelcast.core.LifecycleListener;
+import com.hazelcast.cp.lock.FencedLock;
+import com.hazelcast.map.IMap;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.InstanceHolder;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.DefaultWrapperFactory;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.FiredTrigger;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.JobFacade;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.JobWrapper;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.TriggerFacade;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.TriggerWrapper;
-import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.WrapperFactory;
+import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.TimeTriggerSet;
+import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.*;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.Calendar;
 import org.quartz.*;
@@ -53,20 +54,20 @@ public class HazelcastJobStore implements ClusteredJobStore {
     private final IMap<String, Calendar> calendarsByName;
     private long misfireThreshold = 60000L;
 
-    private transient final ILock lock;
+    private transient final FencedLock lock;
 
     private final WrapperFactory wrapperFactory;
 
     private long ftrCtr;
     private volatile SchedulerSignaler signaler;
     private final Logger logger;
-    private volatile String nodeId;
+    private volatile UUID nodeId;
     private long estimatedTimeToReleaseAndAcquireTrigger = 15L;
     private volatile LocalLockState localStateLock;
     private volatile boolean toolkitShutdown;
     private long retryInterval;
-    private String membershipListenerId;
-    private String shutdownListenerId;
+    private UUID membershipListenerId;
+    private UUID shutdownListenerId;
 
     // This is a hack to prevent certain objects from ever being flushed. "this" should never be flushed (at least not
     // until the scheduler is shutdown) since it is referenced from the scheduler (which is not a shared object)
@@ -170,7 +171,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
 
         Collection<Member> nodes = instance.getCluster().getMembers();
 
-        Set<String> activeNodeIDs = new HashSet<>();
+        Set<UUID> activeNodeIDs = new HashSet<>();
         for (Member node : nodes) {
             boolean added = activeNodeIDs.add(node.getUuid());
             if (!added) {
@@ -185,7 +186,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
             // scan for orphaned triggers
             for (TriggerKey triggerKey : triggerFacade.allTriggerKeys()) {
                 TriggerWrapper tw = triggerFacade.get(triggerKey);
-                String lastHazelcastClientId = tw.getLastHazelcastClientId();
+                UUID lastHazelcastClientId = tw.getLastHazelcastClientId();
                 if (lastHazelcastClientId == null) {
                     continue;
                 }
@@ -2016,7 +2017,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
     }
 
     private void nodeLeft(MembershipEvent event) {
-        final String nodeLeft = event.getMember().getUuid();
+        final UUID nodeLeft = event.getMember().getUuid();
 
         try {
             lock();
@@ -2031,7 +2032,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
 
             for (TriggerKey triggerKey : triggerFacade.allTriggerKeys()) {
                 TriggerWrapper tw = triggerFacade.get(triggerKey);
-                String clientId = tw.getLastHazelcastClientId();
+                UUID clientId = tw.getLastHazelcastClientId();
                 if (clientId != null && clientId.equals(nodeLeft)) {
                     toEval.add(tw);
                 }
@@ -2131,11 +2132,6 @@ public class HazelcastJobStore implements ClusteredJobStore {
     public void memberRemoved(MembershipEvent membershipEvent) {
         getLog().info("Received node left notification for " + membershipEvent.getMember().getUuid());
         nodeLeft(membershipEvent);
-    }
-
-    @Override
-    public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-        // do nothing
     }
 
     private static class ShutdownHook implements LifecycleListener {

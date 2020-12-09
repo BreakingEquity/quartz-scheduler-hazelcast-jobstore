@@ -15,10 +15,10 @@
 
 package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections;
 
+import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ISet;
+import com.hazelcast.cp.lock.FencedLock;
+import com.hazelcast.map.IMap;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.FiredTrigger;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.JobWrapper;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.TriggerWrapper;
@@ -214,8 +214,8 @@ public class InstanceHolder {
         return timeTriggerSetReference.get();
     }
 
-    public ILock getLock() {
+    public FencedLock getLock() {
         String lockName = generateName(SINGLE_LOCK_NAME_PREFIX);
-        return toolkit.getLock(lockName);
+        return toolkit.getCPSubsystem().getLock(lockName);
     }
 }

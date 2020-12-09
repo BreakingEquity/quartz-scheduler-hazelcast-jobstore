@@ -15,7 +15,7 @@
 
 package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast;
 
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.cluster.MembershipListener;
 import org.quartz.spi.JobStore;
 
 @SuppressWarnings("unused")

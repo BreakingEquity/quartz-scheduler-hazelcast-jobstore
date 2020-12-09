@@ -15,7 +15,7 @@
 
 package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers;
 
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.InstanceHolder;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;

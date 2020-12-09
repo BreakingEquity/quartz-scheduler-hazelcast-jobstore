@@ -19,25 +19,26 @@ import org.quartz.TriggerKey;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 public class FiredTrigger implements Serializable {
-    private final String clientId;
+    private final UUID clientId;
     private final TriggerKey triggerKey;
     private final long scheduledFireTime;
     private final long fireTime;
 
-    public FiredTrigger(String clientId, TriggerKey triggerKey, long scheduledFireTime) {
+    public FiredTrigger(UUID clientId, TriggerKey triggerKey, long scheduledFireTime) {
         this(clientId, triggerKey, scheduledFireTime, System.currentTimeMillis());
     }
 
-    public FiredTrigger(String clientId, TriggerKey triggerKey, long scheduledFireTime, long now) {
+    public FiredTrigger(UUID clientId, TriggerKey triggerKey, long scheduledFireTime, long now) {
         this.clientId = clientId;
         this.triggerKey = triggerKey;
         this.scheduledFireTime = scheduledFireTime;
         this.fireTime = now;
     }
 
-    public String getClientId() {
+    public UUID getClientId() {
         return clientId;
     }
 

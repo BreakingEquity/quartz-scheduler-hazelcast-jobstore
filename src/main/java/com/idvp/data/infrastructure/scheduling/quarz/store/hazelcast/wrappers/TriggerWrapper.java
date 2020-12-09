@@ -22,6 +22,7 @@ import org.quartz.spi.OperableTrigger;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 @SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class TriggerWrapper implements Serializable {
@@ -31,7 +32,7 @@ public class TriggerWrapper implements Serializable {
 
     private final boolean jobDisallowsConcurrence;
 
-    private volatile String lastHazelcastClientId = null;
+    private volatile UUID lastHazelcastClientId = null;
     private volatile TriggerState state = TriggerState.WAITING;
 
     private final OperableTrigger trigger;
@@ -50,7 +51,7 @@ public class TriggerWrapper implements Serializable {
         return jobDisallowsConcurrence;
     }
 
-    public String getLastHazelcastClientId() {
+    public UUID getLastHazelcastClientId() {
         return lastHazelcastClientId;
     }
 
@@ -72,7 +73,7 @@ public class TriggerWrapper implements Serializable {
         return trigger.getJobKey();
     }
 
-    public void setState(TriggerState state, String hazelcastId, TriggerFacade triggerFacade) {
+    public void setState(TriggerState state, UUID hazelcastId, TriggerFacade triggerFacade) {
         if (hazelcastId == null) {
             throw new NullPointerException();
         }

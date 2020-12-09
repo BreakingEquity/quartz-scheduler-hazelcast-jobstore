@@ -15,7 +15,7 @@
 
 package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections;
 
-import com.hazelcast.core.ISet;
+import com.hazelcast.collection.ISet;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.TriggerWrapper;
 import org.quartz.TriggerKey;
 

@@ -22,7 +22,7 @@ public abstract class AbstractTest {
     HazelcastInstance createHazelcastInstance(String clusterName) {
 
         Config config = new Config();
-        config.getGroupConfig().setName(clusterName);
+        config.setClusterName(clusterName);
         config.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup("224.0.0.1");
         config.setProperty("hazelcast.logging.type", "slf4j");
         config.setProperty("hazelcast.heartbeat.interval.seconds", "1");
