@@ -200,11 +200,15 @@ public class HazelcastJobStore implements ClusteredJobStore {
             }
 
             // scan firedTriggers
-            for (Iterator<FiredTrigger> iter = triggerFacade.allFiredTriggers().iterator(); iter.hasNext(); ) {
-                FiredTrigger ft = iter.next();
+            for (String key : triggerFacade.allFiredTriggers()) {
+                FiredTrigger ft = triggerFacade.getFiredTrigger(key);
+                if (ft == null) {
+                    continue;
+                }
+
                 if (!activeNodeIDs.contains(ft.getClientId())) {
                     getLog().info("Found non-complete fired trigger: " + ft);
-                    iter.remove();
+                    triggerFacade.removeFiredTrigger(key);
 
                     TriggerWrapper tw = triggerFacade.get(ft.getTriggerKey());
                     if (tw == null) {
@@ -2037,11 +2041,15 @@ public class HazelcastJobStore implements ClusteredJobStore {
                 evalOrphanedTrigger(tw, false);
             }
 
-            for (Iterator<FiredTrigger> iter = triggerFacade.allFiredTriggers().iterator(); iter.hasNext(); ) {
-                FiredTrigger ft = iter.next();
+            for (String key : triggerFacade.allFiredTriggers()) {
+                FiredTrigger ft = triggerFacade.getFiredTrigger(key);
+                if (ft == null) {
+                    continue;
+                }
+
                 if (nodeLeft.equals(ft.getClientId())) {
                     getLog().info("Found non-complete fired trigger: " + ft);
-                    iter.remove();
+                    triggerFacade.removeFiredTrigger(key);
 
                     TriggerWrapper tw = triggerFacade.get(ft.getTriggerKey());
                     if (tw == null) {

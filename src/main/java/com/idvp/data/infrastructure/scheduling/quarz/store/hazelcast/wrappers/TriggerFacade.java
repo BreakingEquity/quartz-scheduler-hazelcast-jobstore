@@ -104,8 +104,8 @@ public class TriggerFacade {
         return this.triggersByFQN.keySet();
     }
 
-    public Collection<FiredTrigger> allFiredTriggers() {
-        return firedTriggers.values();
+    public Collection<String> allFiredTriggers() {
+        return firedTriggers.keySet();
     }
 
     public int numberOfTriggers() {
