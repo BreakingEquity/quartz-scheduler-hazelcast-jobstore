@@ -23,8 +23,7 @@ public abstract class AbstractTest {
 
         Config config = new Config();
         config.getGroupConfig().setName(clusterName);
-        //noinspection deprecation
-        config.getGroupConfig().setPassword("some-password");
+        config.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup("224.0.0.1");
         config.setProperty("hazelcast.logging.type", "slf4j");
         config.setProperty("hazelcast.heartbeat.interval.seconds", "1");
         config.setProperty("hazelcast.max.no.heartbeat.seconds", "3");
