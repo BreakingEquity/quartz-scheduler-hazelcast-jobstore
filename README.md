@@ -4,6 +4,21 @@ An implementation of a Quartz Scheduler Job Store using Hazelcast distributed Ma
 
 This implementation is based on `org.terracotta.quartz.DefaultClusteredJobStore`.
 
+### Adding Dependency
+```
+<dependency>
+    <groupId>com.breakingequity</groupId>
+    <artifactId>quartz-hazelcast-jobstore</artifactId>
+    <version>2.0.3</version>
+</dependency>
+
+<repository>
+    <id>github</id>
+    <name>GitHub Breaking Equity Apache Maven Packages</name>
+    <url>https://maven.pkg.github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore</url>
+</repository>
+```
+
 ### About Quartz
 Quartz is a richly featured, open source job scheduling library that can be integrated within virtually any Java application - from the smallest stand-alone application to the largest e-commerce system. Quartz can be used to create simple or complex schedules for executing tens, hundreds, or even tens-of-thousands of jobs; jobs whose tasks are defined as standard Java components that may execute virtually anything you may program them to do. The Quartz Scheduler includes many enterprise-class features, such as support for JTA transactions and clustering.
 
@@ -16,21 +31,6 @@ JobStore's are responsible for keeping track of all the "work data" that you giv
 Hazelcast is an in-memory open source software data grid based on Java. By having multiple nodes form a cluster, data is evenly distributed among the nodes. This allows for horizontal scaling both in terms of available storage space and processing power. Backups are also distributed in a similar fashion to other nodes, based on configuration, thereby protecting against single node failure.
 
 [Read More](http://hazelcast.org/)
-
-### Adding Dependency
-```
-<dependency>
-    <groupId>com.breakingequity</groupId>
-    <artifactId>quartz-hazelcast-jobstore</artifactId>
-    <version>2.0.2</version>
-</dependency>
-
-<repository>
-    <id>github</id>
-    <name>GitHub Breaking Equity Apache Maven Packages</name>
-    <url>https://maven.pkg.github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore</url>
-</repository>
-```
 
 ### Clustering
 When using Hazelcast Job Store we rely on Hazelcast to provide a Cluster where our jobs are stored. This way we can easily have a cluster of Quartz Scheduler instances that share the same data.
