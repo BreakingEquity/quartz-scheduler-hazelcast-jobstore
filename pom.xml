@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.idvp.infrastructure</groupId>
+    <groupId>com.breakingequity</groupId>
     <artifactId>quartz-hazelcast-jobstore</artifactId>
     <version>2.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
-  
+
     <name>Quartz Hazelcast JobStore</name>
 
     <properties>
@@ -18,9 +19,8 @@
         <!-- Logging -->
         <slf4j.version>1.7.7</slf4j.version>
 
-        <hazelcast.version>4.0.3</hazelcast.version>
-        <quartz.version>2.3.0</quartz.version>
-        <org.jetbrains.annotations.version>16.0.3</org.jetbrains.annotations.version>
+        <hazelcast.version>4.2.3</hazelcast.version>
+        <quartz.version>2.3.2</quartz.version>
     </properties>
 
     <dependencies>
@@ -47,16 +47,6 @@
             <optional>true</optional>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${org.jetbrains.annotations.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-
-
         <!-- Utils & Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -73,16 +63,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>4.12</version>
-          <scope>test</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-          <version>1.3</version>
-          <scope>test</scope>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -99,22 +89,23 @@
                 </configuration>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-plugin</artifactId>
-              <version>2.15</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.15</version>
             </plugin>
         </plugins>
     </build>
 
-
     <distributionManagement>
         <repository>
-            <id>libs-mvn-local</id>
-            <url>https://artifactory.inf.idvp.net:443/artifactory/libs-mvn-local</url>
+            <id>github</id>
+            <name>GitHub Breaking Equity Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/BreakingEquity/releases</url>
         </repository>
         <snapshotRepository>
-            <id>libs-mvn-local</id>
-            <url>https://artifactory.inf.idvp.net:443/artifactory/libs-mvn-local</url>
+            <id>github</id>
+            <name>GitHub Breaking Equity Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/BreakingEquity/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

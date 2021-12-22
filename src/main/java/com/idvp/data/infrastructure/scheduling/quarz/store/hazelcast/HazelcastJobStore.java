@@ -26,7 +26,6 @@ import com.hazelcast.map.IMap;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.InstanceHolder;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.collections.TimeTriggerSet;
 import com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast.wrappers.*;
-import org.jetbrains.annotations.NotNull;
 import org.quartz.Calendar;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -763,7 +762,6 @@ public class HazelcastJobStore implements ClusteredJobStore {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     public boolean checkExists(final TriggerKey triggerKey) {
@@ -2142,7 +2140,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
         }
 
         @Override
-        public void stateChanged(@NotNull final LifecycleEvent event) {
+        public void stateChanged(LifecycleEvent event) {
             if (event.getState() == LifecycleEvent.LifecycleState.SHUTTING_DOWN) {
                 this.store.disable();
             }
