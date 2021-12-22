@@ -20,10 +20,16 @@ Hazelcast is an in-memory open source software data grid based on Java. By havin
 ### Adding Dependency
 ```
 <dependency>
-    <groupId>com.idvp.infrastructure</groupId>
+    <groupId>com.breakingequity</groupId>
     <artifactId>quartz-hazelcast-jobstore</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
 </dependency>
+
+<repository>
+    <id>github</id>
+    <name>GitHub Breaking Equity Apache Maven Packages</name>
+    <url>https://maven.pkg.github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore</url>
+</repository>
 ```
 
 ### Clustering
@@ -44,7 +50,7 @@ Tests are based on [Ameausoone/quartz-hazelcast-jobstore](https://github.com/Ame
 
 #### Clone
 ```
-git clone https://github.com/idvp-project/quartz-scheduler-hazelcast-jobstore.git
+git clone https://github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore.git
 cd quartz-scheduler-hazelcast-jobstore
 ```
 #### Build
