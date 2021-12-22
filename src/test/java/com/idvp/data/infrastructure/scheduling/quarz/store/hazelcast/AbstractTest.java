@@ -4,7 +4,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.quartz.*;
-import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.spi.OperableTrigger;
 
 import java.util.Date;
@@ -14,13 +13,10 @@ import static org.quartz.Scheduler.DEFAULT_GROUP;
 
 public abstract class AbstractTest {
 
-    static HazelcastInstance hazelcastInstance;
-    static HazelcastJobStore jobStore;
-    private int buildTriggerIndex = 0;
-    private int buildJobIndex = 0;
+    protected int buildTriggerIndex = 0;
+    protected int buildJobIndex = 0;
 
     HazelcastInstance createHazelcastInstance(String clusterName) {
-
         Config config = new Config();
         config.setClusterName(clusterName);
         config.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup("224.0.0.1");
@@ -56,45 +52,6 @@ public abstract class AbstractTest {
         return JobBuilder.newJob(jobClass).withIdentity(jobName, grouName).build();
     }
 
-    JobDetail storeJob(String jobName)
-            throws JobPersistenceException {
-
-        return storeJob(buildJob(jobName));
-    }
-
-    JobDetail storeJob(JobDetail jobDetail)
-            throws JobPersistenceException {
-
-        jobStore.storeJob(jobDetail, false);
-        return jobDetail;
-    }
-
-    JobDetail buildAndStoreJob()
-            throws JobPersistenceException {
-
-        JobDetail buildJob = buildJob();
-        jobStore.storeJob(buildJob, false);
-        return buildJob;
-    }
-
-    JobDetail buildAndStoreJobWithTrigger()
-            throws JobPersistenceException {
-
-        JobDetail buildJob = buildJob();
-        jobStore.storeJob(buildJob, false);
-
-        OperableTrigger trigger = buildTrigger(buildJob);
-        jobStore.storeTrigger(trigger, false);
-
-        return buildJob;
-    }
-
-    JobDetail retrieveJob(String jobName)
-            throws JobPersistenceException {
-
-        return jobStore.retrieveJob(new JobKey(jobName, DEFAULT_GROUP));
-    }
-
     OperableTrigger buildTrigger(String triggerName,
                                  String triggerGroup,
                                  JobDetail job,
@@ -108,10 +65,9 @@ public abstract class AbstractTest {
                                  JobDetail job,
                                  Long startAt,
                                  Long endAt,
-                                 ScheduleBuilder scheduleBuilder) {
+                                 ScheduleBuilder<?> scheduleBuilder) {
 
-        ScheduleBuilder schedule = scheduleBuilder != null ? scheduleBuilder : SimpleScheduleBuilder.simpleSchedule();
-        //noinspection unchecked
+        ScheduleBuilder<?> schedule = scheduleBuilder != null ? scheduleBuilder : SimpleScheduleBuilder.simpleSchedule();
         return (OperableTrigger) TriggerBuilder
                 .newTrigger()
                 .withIdentity(triggerName, triggerGroup)
@@ -127,18 +83,6 @@ public abstract class AbstractTest {
         return buildTrigger(triggerName, triggerGroup, job, startAt, null, null);
     }
 
-    OperableTrigger buildTrigger()
-            throws JobPersistenceException {
-
-        return buildTrigger("triggerName" + buildTriggerIndex++, DEFAULT_GROUP, buildAndStoreJob());
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    OperableTrigger buildTrigger(String triggerName, String groupName)
-            throws JobPersistenceException {
-
-        return buildTrigger(triggerName, groupName, buildAndStoreJob());
-    }
 
     OperableTrigger buildTrigger(JobDetail jobDetail) {
 
@@ -161,7 +105,7 @@ public abstract class AbstractTest {
                                            JobDetail job,
                                            Long startAt,
                                            Long endAt,
-                                           ScheduleBuilder scheduleBuilder) {
+                                           ScheduleBuilder<?> scheduleBuilder) {
 
         OperableTrigger trigger = buildTrigger(triggerName, triggerGroup, job, startAt, endAt, scheduleBuilder);
         trigger.computeFirstFireTime(null);
@@ -179,21 +123,4 @@ public abstract class AbstractTest {
         return trigger;
     }
 
-    OperableTrigger buildAndStoreTrigger() throws JobPersistenceException {
-
-        OperableTrigger trigger = buildTrigger();
-        jobStore.storeTrigger(trigger, false);
-        return trigger;
-    }
-
-    OperableTrigger retrieveTrigger(TriggerKey triggerKey)
-            throws JobPersistenceException {
-
-        return jobStore.retrieveTrigger(triggerKey);
-    }
-
-    void storeCalendar(String calName) throws JobPersistenceException {
-
-        jobStore.storeCalendar(calName, new BaseCalendar(), false, false);
-    }
 }

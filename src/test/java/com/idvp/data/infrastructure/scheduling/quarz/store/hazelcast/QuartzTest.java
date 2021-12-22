@@ -2,7 +2,8 @@ package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
-import org.junit.*;
+import com.hazelcast.core.HazelcastInstance;
+import org.junit.jupiter.api.*;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -13,7 +14,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.Scheduler.DEFAULT_GROUP;
@@ -27,26 +28,16 @@ public class QuartzTest extends AbstractTest {
     private static final String DATE_STAMPS = "DATE_STAMPS";
     private static final String JOB_THREAD = "JOB_THREAD";
 
-    private static Scheduler scheduler;
+    private HazelcastInstance hazelcastInstance;
+    private Scheduler scheduler;
 
-    @BeforeClass
-    public static void setUp() {
-
-    }
-
-    @AfterClass
-    public static void tearDown()
-            throws SchedulerException {
-
-        hazelcastInstance.shutdown();
-        scheduler.shutdown();
+    @AfterAll
+    public static void tearDown() {
         Hazelcast.shutdownAll();
-
     }
 
-    @Before
-    public void prepare()
-            throws SchedulerException {
+    @BeforeEach
+    public void prepare() throws SchedulerException {
 
         Config config = new Config();
         config.setProperty("hazelcast.logging.type", "slf4j");
@@ -74,19 +65,14 @@ public class QuartzTest extends AbstractTest {
 
     }
 
-    @After
-    public void cleanUp()
-            throws SchedulerException {
-
-        if (scheduler != null && scheduler.isStarted()) {
-            scheduler.shutdown();
-        }
-
+    @AfterEach
+    public void cleanUp() throws SchedulerException {
+        scheduler.shutdown();
+        hazelcastInstance.shutdown();
     }
 
     @Test
-    public void testSchedule()
-            throws Exception {
+    public void testSchedule() throws Exception {
 
         JobDetail job1 = buildJob("Job1", DEFAULT_GROUP, MyJob.class);
         JobDetail job2 = buildJob("Job2", DEFAULT_GROUP, MyJob.class);
@@ -163,8 +149,7 @@ public class QuartzTest extends AbstractTest {
     }
 
     @Test
-    public void testScheduleJobWithRepeatTime()
-            throws Exception {
+    public void testScheduleJobWithRepeatTime() throws Exception {
 
         JobDetail job1 = buildJob("Job1", DEFAULT_GROUP, MyJob.class);
 
@@ -213,8 +198,8 @@ public class QuartzTest extends AbstractTest {
         Thread.sleep(850);
 
         // since MyNoCocurrent job takes 300 ms to finish
-        assertEquals(MyNoConcurrentJob.count, 3);
-        assertEquals(MyNoConcurrentJob.triggerKeys.poll(), "Ckey1");
+        assertEquals(3, MyNoConcurrentJob.count);
+        assertEquals("Ckey1", MyNoConcurrentJob.triggerKeys.poll());
     }
 
     @Test
@@ -266,16 +251,16 @@ public class QuartzTest extends AbstractTest {
                 .storeDurably()
                 .build();
 
-        assertFalse("Unexpected existence of job named 'j1'.", scheduler.checkExists(jobKey("j1")));
+        assertFalse(scheduler.checkExists(jobKey("j1")), "Unexpected existence of job named 'j1'.");
 
         scheduler.addJob(job, false);
 
-        assertTrue("Expected existence of job named 'j1' but checkExists return false.",
-                scheduler.checkExists(jobKey("j1")));
+        assertTrue(scheduler.checkExists(jobKey("j1")),
+                "Expected existence of job named 'j1' but checkExists return false.");
 
         job = scheduler.getJobDetail(jobKey("j1"));
 
-        assertNotNull("Stored job not found!", job);
+        assertNotNull(job, "Stored job not found!");
 
         scheduler.deleteJob(jobKey("j1"));
 
@@ -288,21 +273,21 @@ public class QuartzTest extends AbstractTest {
                         .withIntervalInSeconds(5))
                 .build();
 
-        assertFalse("Unexpected existence of trigger named '11'.", scheduler.checkExists(triggerKey("t1")));
+        assertFalse(scheduler.checkExists(triggerKey("t1")), "Unexpected existence of trigger named '11'.");
 
         scheduler.scheduleJob(job, trigger);
         //give time to hazelcast store the trigger
         Thread.sleep(25);
 
-        assertTrue("Expected existence of trigger named 't1' but checkExists return false.", scheduler.checkExists(triggerKey("t1")));
+        assertTrue(scheduler.checkExists(triggerKey("t1")), "Expected existence of trigger named 't1' but checkExists return false.");
 
         job = scheduler.getJobDetail(jobKey("j1"));
 
-        assertNotNull("Stored job not found!", job);
+        assertNotNull(job, "Stored job not found!");
 
         trigger = scheduler.getTrigger(triggerKey("t1"));
 
-        assertNotNull("Stored trigger not found!", trigger);
+        assertNotNull(trigger, "Stored trigger not found!");
 
         job = newJob()
                 .ofType(MyJob.class)
@@ -341,23 +326,23 @@ public class QuartzTest extends AbstractTest {
         List<String> jobGroups = scheduler.getJobGroupNames();
         List<String> triggerGroups = scheduler.getTriggerGroupNames();
 
-        assertEquals("Job group list size expected to be = 2 ", 2, jobGroups.size());
-        assertEquals("Trigger group list size expected to be = 2 ", 2, triggerGroups.size());
+        assertEquals(2, jobGroups.size(), "Job group list size expected to be = 2 ");
+        assertEquals(2, triggerGroups.size(), "Trigger group list size expected to be = 2 ");
 
         Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(JobKey.DEFAULT_GROUP));
         Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(TriggerKey.DEFAULT_GROUP));
 
-        assertEquals("Number of jobs expected in default group was 1 ", 1, jobKeys.size());
-        assertEquals("Number of triggers expected in default group was 1 ", 1, triggerKeys.size());
+        assertEquals(1, jobKeys.size(), "Number of jobs expected in default group was 1 ");
+        assertEquals(1, triggerKeys.size(), "Number of triggers expected in default group was 1 ");
 
         jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("g1"));
         triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals("g1"));
 
-        assertEquals("Number of jobs expected in 'g1' group was 2 ", 2, jobKeys.size());
-        assertEquals("Number of triggers expected in 'g1' group was 2 ", 2, triggerKeys.size());
+        assertEquals(2, jobKeys.size(), "Number of jobs expected in 'g1' group was 2 ");
+        assertEquals(2, triggerKeys.size(), "Number of triggers expected in 'g1' group was 2 ");
 
         Trigger.TriggerState s = scheduler.getTriggerState(triggerKey("t2", "g1"));
-        assertEquals("State of trigger t2 expected to be NORMAL ", s, Trigger.TriggerState.NORMAL);
+        assertEquals(s, Trigger.TriggerState.NORMAL, "State of trigger t2 expected to be NORMAL ");
 
         scheduler.pauseTrigger(triggerKey("t2", "g1"));
         s = scheduler.getTriggerState(triggerKey("t2", "g1"));
@@ -365,10 +350,10 @@ public class QuartzTest extends AbstractTest {
 
         scheduler.resumeTrigger(triggerKey("t2", "g1"));
         s = scheduler.getTriggerState(triggerKey("t2", "g1"));
-        assertEquals("State of trigger t2 expected to be NORMAL ", s, Trigger.TriggerState.NORMAL);
+        assertEquals(s, Trigger.TriggerState.NORMAL, "State of trigger t2 expected to be NORMAL ");
 
         Set<String> pausedGroups = scheduler.getPausedTriggerGroups();
-        assertTrue("Size of paused trigger groups list expected to be 0 ", pausedGroups.isEmpty());
+        assertTrue(pausedGroups.isEmpty(), "Size of paused trigger groups list expected to be 0 ");
 
         scheduler.pauseTriggers(GroupMatcher.triggerGroupEquals("g1"));
 
@@ -392,7 +377,7 @@ public class QuartzTest extends AbstractTest {
         Thread.sleep(25);
 
         pausedGroups = scheduler.getPausedTriggerGroups();
-        assertEquals("Size of paused trigger groups list expected to be 1 ", 1, pausedGroups.size());
+        assertEquals(1, pausedGroups.size(), "Size of paused trigger groups list expected to be 1 ");
 
         s = scheduler.getTriggerState(triggerKey("t2", "g1"));
         assertEquals(s, Trigger.TriggerState.PAUSED);
@@ -402,32 +387,32 @@ public class QuartzTest extends AbstractTest {
 
         scheduler.resumeTriggers(GroupMatcher.triggerGroupEquals("g1"));
         s = scheduler.getTriggerState(triggerKey("t2", "g1"));
-        assertEquals("State of trigger t2 expected to be NORMAL ", s, Trigger.TriggerState.NORMAL);
+        assertEquals(s, Trigger.TriggerState.NORMAL, "State of trigger t2 expected to be NORMAL ");
         s = scheduler.getTriggerState(triggerKey("t4", "g1"));
-        assertEquals("State of trigger t4 expected to be NORMAL ", s, Trigger.TriggerState.NORMAL);
+        assertEquals(s, Trigger.TriggerState.NORMAL, "State of trigger t4 expected to be NORMAL ");
         pausedGroups = scheduler.getPausedTriggerGroups();
-        assertTrue("Size of paused trigger groups list expected to be 0 ", pausedGroups.isEmpty());
+        assertTrue(pausedGroups.isEmpty(), "Size of paused trigger groups list expected to be 0 ");
 
-        assertFalse("Scheduler should have returned 'false' from attempt to unschedule non-existing trigger. ",
-                scheduler.unscheduleJob(triggerKey("foasldfksajdflk")));
+        assertFalse(scheduler.unscheduleJob(triggerKey("foasldfksajdflk")),
+                "Scheduler should have returned 'false' from attempt to unschedule non-existing trigger. ");
 
-        assertTrue("Scheduler should have returned 'true' from attempt to unschedule existing trigger. ",
-                scheduler.unscheduleJob(triggerKey("t3", "g1")));
+        assertTrue(scheduler.unscheduleJob(triggerKey("t3", "g1")),
+                "Scheduler should have returned 'true' from attempt to unschedule existing trigger. ");
 
         jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals("g1"));
         triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals("g1"));
 
-        assertEquals("Number of jobs expected in 'g1' group was 1 ", 2, jobKeys.size()); // job should have been deleted also, because it is non-durable
-        assertEquals("Number of triggers expected in 'g1' group was 1 ", 2, triggerKeys.size());
+        assertEquals(2, jobKeys.size(), "Number of jobs expected in 'g1' group was 1 "); // job should have been deleted also, because it is non-durable
+        assertEquals(2, triggerKeys.size(), "Number of triggers expected in 'g1' group was 1 ");
 
-        assertTrue("Scheduler should have returned 'true' from attempt to unschedule existing trigger. ",
-                scheduler.unscheduleJob(triggerKey("t1")));
+        assertTrue(scheduler.unscheduleJob(triggerKey("t1")),
+                "Scheduler should have returned 'true' from attempt to unschedule existing trigger. ");
 
         jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(JobKey.DEFAULT_GROUP));
         triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(TriggerKey.DEFAULT_GROUP));
 
-        assertEquals("Number of jobs expected in default group was 1 ", 1, jobKeys.size()); // job should have been left in place, because it is non-durable
-        assertTrue("Number of triggers expected in default group was 0 ", triggerKeys.isEmpty());
+        assertEquals(1, jobKeys.size(), "Number of jobs expected in default group was 1 "); // job should have been left in place, because it is non-durable
+        assertTrue(triggerKeys.isEmpty(), "Number of triggers expected in default group was 0 ");
 
     }
 
@@ -442,11 +427,11 @@ public class QuartzTest extends AbstractTest {
                 .storeDurably()
                 .build();
 
-        assertFalse("Unexpected existence of job named 'j1'.", scheduler.checkExists(jobKey("j1")));
+        assertFalse(scheduler.checkExists(jobKey("j1")), "Unexpected existence of job named 'j1'.");
 
         scheduler.addJob(job, false);
 
-        assertTrue("Unexpected non-existence of job named 'j1'.", scheduler.checkExists(jobKey("j1")));
+        assertTrue(scheduler.checkExists(jobKey("j1")), "Unexpected non-existence of job named 'j1'.");
 
         JobDetail nonDurableJob = newJob()
                 .ofType(MyJob.class)
@@ -457,12 +442,12 @@ public class QuartzTest extends AbstractTest {
             scheduler.addJob(nonDurableJob, false);
             fail("Storage of non-durable job should not have succeeded.");
         } catch (SchedulerException expected) {
-            assertFalse("Unexpected existence of job named 'j2'.", scheduler.checkExists(jobKey("j2")));
+            assertFalse(scheduler.checkExists(jobKey("j2")), "Unexpected existence of job named 'j2'.");
         }
 
         scheduler.addJob(nonDurableJob, false, true);
 
-        assertTrue("Unexpected non-existence of job named 'j2'.", scheduler.checkExists(jobKey("j2")));
+        assertTrue(scheduler.checkExists(jobKey("j2")), "Unexpected non-existence of job named 'j2'.");
     }
 
     @Test
@@ -492,9 +477,11 @@ public class QuartzTest extends AbstractTest {
             }
             if (t.getThreadGroup() != null && t.getThreadGroup().getName().equals("system")) {
                 allThreadsEnd.remove(t);
-
             }
             if (t.getThreadGroup() != null && t.getThreadGroup().getName().equals("main")) {
+                allThreadsEnd.remove(t);
+            }
+            if (t.getName().equals("Keep-Alive-Timer")) {
                 allThreadsEnd.remove(t);
             }
         }
@@ -518,7 +505,16 @@ public class QuartzTest extends AbstractTest {
         }
         Thread.sleep(2000L);
 
-        assertTrue("Found unexpected new threads (see console output for listing)", allThreadsEnd.isEmpty());
+        for (Thread t : allThreadsEnd.keySet()) {
+            System.out.println("- Unexpected thread: "
+                    + t.getName()
+                    + " (of type "
+                    + t.getClass().getName()
+                    + ")  in group: "
+                    + (t.getThreadGroup() == null ? "-none-" : (t.getThreadGroup().getName() + " with parent group: " + (t
+                    .getThreadGroup().getParent() == null ? "-none-" : t.getThreadGroup().getParent().getName()))));
+        }
+        assertTrue(allThreadsEnd.isEmpty(), "Found unexpected new threads (see console output for listing)");
     }
 
     @Test
@@ -545,7 +541,7 @@ public class QuartzTest extends AbstractTest {
 
         long fTime = jobExecTimestamps.get(0);
 
-        assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime < 7000L)); // This is dangerously subjective!  but what else to do?
+        assertTrue((fTime - sTime < 7000L), "Immediate trigger did not fire within a reasonable amount of time."); // This is dangerously subjective!  but what else to do?
     }
 
     @Test
@@ -573,7 +569,7 @@ public class QuartzTest extends AbstractTest {
 
         long fTime = jobExecTimestamps.get(0);
 
-        assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime < 7000L)); // This is dangerously subjective!  but what else to do?
+        assertTrue((fTime - sTime < 7000L), "Immediate trigger did not fire within a reasonable amount of time."); // This is dangerously subjective!  but what else to do?
     }
 
     @Test
@@ -598,7 +594,7 @@ public class QuartzTest extends AbstractTest {
 
         long fTime = jobExecTimestamps.get(0);
 
-        assertTrue("Immediate trigger did not fire within a reasonable amount of time.", (fTime - sTime < 7000L)); // This is dangerously subjective!  but what else to do?
+        assertTrue((fTime - sTime < 7000L), "Immediate trigger did not fire within a reasonable amount of time."); // This is dangerously subjective!  but what else to do?
     }
 
     @Test

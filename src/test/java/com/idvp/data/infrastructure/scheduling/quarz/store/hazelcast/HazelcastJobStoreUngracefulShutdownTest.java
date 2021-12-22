@@ -2,9 +2,8 @@ package com.idvp.data.infrastructure.scheduling.quarz.store.hazelcast;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobPersistenceException;
@@ -15,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.quartz.Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY;
 
 /**
@@ -35,7 +35,7 @@ import static org.quartz.Trigger.MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY;
  */
 public class HazelcastJobStoreUngracefulShutdownTest extends AbstractTest {
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         Hazelcast.shutdownAll();
     }
@@ -97,6 +97,6 @@ public class HazelcastJobStoreUngracefulShutdownTest extends AbstractTest {
         // Acquire next triggers on node 2, we should get our trigger here!
         List<OperableTrigger> triggers2 = jobstore2.acquireNextTriggers(firstFireTime + 150 + 6000, 10, 0L);
         System.err.println("-------------------------> VAL " + triggers2.size());
-        Assert.assertEquals("Should find 1 trigger on node 2 after node 1 crashed when failing after " + waitTime + "ms", triggers2.size(), 1);
+        assertEquals(triggers2.size(), 1, "Should find 1 trigger on node 2 after node 1 crashed when failing after " + waitTime + "ms");
     }
 }
