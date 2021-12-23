@@ -394,7 +394,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      *
      * @param newJob          The <code>Job</code> to be stored.
      * @param replaceExisting If <code>true</code>, any <code>Job</code> existing in the <code>JobStore</code> with the
-     *                        same name & group should be over-written.
+     *                        same name and group should be over-written.
      * @throws ObjectAlreadyExistsException if a <code>Job</code> with the same name/group already exists, and
      *                                      replaceExisting is set to false.
      */
@@ -440,7 +440,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      * </p>
      *
      * @param jobKey The key of the <code>Job</code> to be removed.
-     * @return <code>true</code> if a <code>Job</code> with the given name & group was found and removed from the store.
+     * @return <code>true</code> if a <code>Job</code> with the given name and group was found and removed from the store.
      */
     @Override
     public boolean removeJob(JobKey jobKey) throws JobPersistenceException {
@@ -550,7 +550,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      *
      * @param newTrigger      The <code>Trigger</code> to be stored.
      * @param replaceExisting If <code>true</code>, any <code>Trigger</code> existing in the <code>JobStore</code> with
-     *                        the same name & group should be over-written.
+     *                        the same name and group should be over-written.
      * @throws ObjectAlreadyExistsException if a <code>Trigger</code> with the same name/group already exists, and
      *                                      replaceExisting is set to false.
      * @see #pauseTriggers(org.quartz.impl.matchers.GroupMatcher)
@@ -615,7 +615,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      * </p>
      *
      * @param triggerKey The key of the <code>Trigger</code> to be removed.
-     * @return <code>true</code> if a <code>Trigger</code> with the given name & group was found and removed from the
+     * @return <code>true</code> if a <code>Trigger</code> with the given name and group was found and removed from the
      * store.
      */
     @Override
@@ -878,7 +878,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      *
      * @param calendar        The <code>Calendar</code> to be stored.
      * @param replaceExisting If <code>true</code>, any <code>Calendar</code> existing in the <code>JobStore</code> with
-     *                        the same name & group should be over-written.
+     *                        the same name and group should be over-written.
      * @param updateTriggers  If <code>true</code>, any <code>Trigger</code>s existing in the <code>JobStore</code> that
      *                        reference an existing Calendar with the same name with have their next fire time re-computed with the new
      *                        <code>Calendar</code>.
@@ -927,7 +927,7 @@ public class HazelcastJobStore implements ClusteredJobStore {
      * Remove (delete) the <code>{@link org.quartz.Calendar}</code> with the given name.
      * </p>
      * <p>
-     * If removal of the <code>Calendar</code> would result in <code.Trigger</code>s pointing to non-existent calendars,
+     * If removal of the <code>Calendar</code> would result in <code>Trigger</code>s pointing to non-existent calendars,
      * then a <code>JobPersistenceException</code> will be thrown.
      * </p>
      * *
