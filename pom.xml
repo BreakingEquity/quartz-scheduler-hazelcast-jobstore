@@ -8,6 +8,30 @@
     <packaging>jar</packaging>
 
     <name>Quartz Hazelcast JobStore</name>
+    <description>An implementation of a Quartz Scheduler Job Store using Hazelcast distributed Maps and Sets
+    </description>
+    <url>https://github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Andrei Zhemaituk</name>
+            <organization>Breaking Equity</organization>
+            <organizationUrl>https://www.breakingequity.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore.git</connection>
+        <developerConnection>scm:git:ssh://github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore.git</developerConnection>
+        <url>https://github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore/tree/master</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

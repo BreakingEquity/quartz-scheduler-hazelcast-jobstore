@@ -9,14 +9,8 @@ This implementation is based on `org.terracotta.quartz.DefaultClusteredJobStore`
 <dependency>
     <groupId>com.breakingequity</groupId>
     <artifactId>quartz-hazelcast-jobstore</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
 </dependency>
-
-<repository>
-    <id>github</id>
-    <name>GitHub Breaking Equity Apache Maven Packages</name>
-    <url>https://maven.pkg.github.com/BreakingEquity/quartz-scheduler-hazelcast-jobstore</url>
-</repository>
 ```
 
 ### About Quartz
