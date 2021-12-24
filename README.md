@@ -53,6 +53,14 @@ cd quartz-scheduler-hazelcast-jobstore
 mvn clean install
 ```
 
+#### Release
+```
+mvn clean release
+```
+Snapshots: https://s01.oss.sonatype.org/content/repositories/snapshots/com/breakingequity/quartz-hazelcast-jobstore/
+Releases: https://s01.oss.sonatype.org/content/repositories/releases/com/breakingequity/quartz-hazelcast-jobstore/ 
+Maven central: https://repo.maven.apache.org/maven2/com/breakingequity/quartz-hazelcast-jobstore/
+
 ### How to use HazelcastJobStore with Quartz in spring-boot application
 
 Sample `hazelcast.yaml`:
