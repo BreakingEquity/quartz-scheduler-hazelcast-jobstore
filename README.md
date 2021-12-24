@@ -1,15 +1,16 @@
-Quartz-Scheduler Hazelcast Job Store [![Build Status](https://travis-ci.org/FlavioF/quartz-scheduler-hazelcast-jobstore.svg?branch=master)](https://travis-ci.org/FlavioF/quartz-scheduler-hazelcast-jobstore) [![](https://raw.githubusercontent.com/novoda/novoda/master/assets/btn_apache_lisence.png)](LICENSE.txt)
+Quartz Scheduler Hazelcast Job Store
 ====================================
 An implementation of a Quartz Scheduler Job Store using Hazelcast distributed Maps and Sets.
 
-This implementation is based on `org.terracotta.quartz.DefaultClusteredJobStore`.
+This project aggregates improvements from multiple github repositories to the original implementation based on `org.terracotta.quartz.DefaultClusteredJobStore`.
+Offers better compatibility with spring-boot and hazelcast 5, and makes the dependency available from Maven central.
 
 ### Adding Dependency
 ```
 <dependency>
     <groupId>com.breakingequity</groupId>
     <artifactId>quartz-hazelcast-jobstore</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
 </dependency>
 ```
 
@@ -52,14 +53,41 @@ cd quartz-scheduler-hazelcast-jobstore
 mvn clean install
 ```
 
-### How to Use HazelcastJobStore with Quartz
+### How to use HazelcastJobStore with Quartz in spring-boot application
+
+Sample `hazelcast.yaml`:
+```yaml
+hazelcast:
+  cluster-name: hz-cluster
+  instance-name: hz-instance
+  network:
+    join:
+      auto-detection:
+        enabled: true
+```
+
+Sample `application.yaml`:
+```yaml
+spring:
+  quartz:
+    properties:
+      org:
+        quartz:
+          jobStore:
+            class: com.breakingequity.quarz.store.hazelcast.HazelcastJobStoreDelegate
+            misfireThreshold: 60000
+            hazelcastInstanceName: hz-instance
+```
+
+
+### How to use HazelcastJobStore with Quartz
 ```java
 // Setting Hazelcast Instance
 HazelcastJobStoreDelegate.setInstance(hazelcastInstance);
 
 // Setting Hazelcast Job Store
 Properties props = new Properties();
-props.setProperty(StdSchedulerFactory.PROP_JOB_STORE_CLASS, HazelcastJobStore.class.getName());
+props.setProperty(StdSchedulerFactory.PROP_JOB_STORE_CLASS, HazelcastJobStoreDelegate.class.getName());
 
 StdSchedulerFactory scheduler = new StdSchedulerFactory(props).getScheduler();
 

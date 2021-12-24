@@ -3,32 +3,33 @@ package com.breakingequity.quarz.store.hazelcast;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.quartz.*;
+import org.quartz.Calendar;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.*;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author olegzinovev
  * @since 2019-01-15
  **/
 public class HazelcastJobStoreDelegate implements JobStore {
-    private static HazelcastInstance instance;
-    private static boolean shutdownInstance = false;
 
-    @SuppressWarnings("WeakerAccess")
+    private static HazelcastInstance globalInstance;
+
     public static void setInstance(HazelcastInstance instance) {
-        HazelcastJobStoreDelegate.instance = instance;
+        HazelcastJobStoreDelegate.globalInstance = instance;
     }
 
-    private HazelcastJobStore clusteredJobStore;
+    private String hazelcastInstanceName;
     private String schedInstanceId;
     private String schedName;
     private long misfireThreshold = 5000;
     private int threadPoolSize;
+
+    private HazelcastJobStore clusteredJobStore;
+    private HazelcastInstance instance;
+    private boolean shutdownInstance = false;
 
     @Override
     public void setThreadPoolSize(final int size) {
@@ -107,7 +108,12 @@ public class HazelcastJobStoreDelegate implements JobStore {
             throw new IllegalStateException("already initialized");
         }
 
-        if (instance == null) {
+        if (hazelcastInstanceName != null) {
+            instance = Hazelcast.getHazelcastInstanceByName(hazelcastInstanceName);
+            Objects.requireNonNull(instance, "Hazelcast instance not found by name: " + hazelcastInstanceName);
+        } else if (globalInstance != null) {
+            instance = globalInstance;
+        } else {
             instance = Hazelcast.newHazelcastInstance();
             shutdownInstance = true;
         }
@@ -360,4 +366,8 @@ public class HazelcastJobStoreDelegate implements JobStore {
         this.misfireThreshold = misfireThreshold;
     }
 
+    @SuppressWarnings("unused")
+    public void setHazelcastInstanceName(String hazelcastInstanceName) {
+        this.hazelcastInstanceName = hazelcastInstanceName;
+    }
 }
