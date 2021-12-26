@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * How JOBS mappings will look? <br>
- * JobKey(name, groupname) -> JobWrapper <br>
- * groupName -> {@code List<String>} <br>
- * List -> allGroupNames<br>
+ * JobKey(name, groupname) to JobWrapper <br>
+ * groupName to {@code List<String>} <br>
+ * List to allGroupNames<br>
  */
 public class InstanceHolder {
     private static final String JOBS_MAP_PREFIX = "_tc_quartz_jobs";
