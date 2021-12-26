@@ -97,6 +97,6 @@ public class HazelcastJobStoreUngracefulShutdownTest extends AbstractTest {
         // Acquire next triggers on node 2, we should get our trigger here!
         List<OperableTrigger> triggers2 = jobstore2.acquireNextTriggers(firstFireTime + 150 + 6000, 10, 0L);
         System.err.println("-------------------------> VAL " + triggers2.size());
-        assertEquals(triggers2.size(), 1, "Should find 1 trigger on node 2 after node 1 crashed when failing after " + waitTime + "ms");
+        assertEquals(1, triggers2.size(), "Should find 1 trigger on node 2 after node 1 crashed when failing after " + waitTime + "ms");
     }
 }
